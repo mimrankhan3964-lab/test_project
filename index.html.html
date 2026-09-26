@@ -1,0 +1,1069 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cambridge Scholar – Earth & Space Lab</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:#0a1628; color:#e8f4ff; min-height:100vh; }
+.main-header { width:100%; background:linear-gradient(135deg,#001a33,#003d66,#006699); padding:28px 30px 20px; text-align:center; border-bottom:5px solid #ffc107; }
+.main-header h1 { font-size:2.2rem; font-weight:900; color:#fff; }
+.main-header .sub { font-size:1rem; color:#a8d8ff; margin-top:6px; }
+.container { max-width:1400px; margin:0 auto; padding:26px 20px; }
+.tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; background:#0f2440; border-radius:14px; padding:8px 12px; }
+.tab-btn { padding:13px 24px; border:none; border-radius:40px; font-size:1.05rem; font-weight:700; color:#b8d4f0; background:transparent; cursor:pointer; transition:all .25s; flex:1 0 auto; }
+.tab-btn:hover { background:rgba(255,255,255,.07); color:#fff; }
+.tab-btn.active { background:linear-gradient(135deg,#ff8f00,#ff6f00); color:#0a1628; box-shadow:0 6px 20px rgba(255,143,0,.45); }
+.tab-btn .icon { margin-right:8px; }
+.topic { display:none; } .topic.active { display:block; }
+.card { background:linear-gradient(160deg,#122a44,#0a1e34); border-radius:22px; padding:24px 26px 28px; margin-bottom:24px; box-shadow:0 14px 40px rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.05); }
+.card h2 { font-size:1.9rem; font-weight:800; margin-bottom:6px; }
+.card h2 small { font-size:.9rem; font-weight:400; color:#7a9cc0; margin-left:8px; }
+.card .desc { font-size:1rem; color:#a8c4e0; margin-bottom:18px; border-left:5px solid #ffc107; padding-left:14px; background:rgba(255,255,255,.03); border-radius:0 12px 12px 0; line-height:1.6; }
+.section-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:18px 0 14px; }
+.section-tab { padding:9px 18px; border:none; border-radius:30px; font-weight:700; font-size:.88rem; background:#1a3550; color:#a8c8e8; cursor:pointer; transition:.2s; }
+.section-tab:hover { background:#234468; color:#fff; } .section-tab.active { background:#1976d2; color:#fff; }
+.panel { display:none; padding:16px 0 6px; } .panel.active{display:block}
+.panel h3 { font-size:1.5rem; font-weight:700; color:#ffd54f; margin-bottom:12px; }
+.panel p,.panel li { font-size:1rem; line-height:1.7; color:#c8ddf0; }
+.panel ul { list-style:none; padding-left:0; }
+.panel ul li { padding:7px 0 7px 32px; position:relative; }
+.panel ul li::before { content:'✓'; position:absolute; left:0; top:7px; width:20px; height:20px; border-radius:50%; background:#ffc107; color:#0a1628; font-weight:900; text-align:center; line-height:20px; font-size:.8rem; }
+.grid-3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-top:10px; }
+.grid-item { background:rgba(255,255,255,.04); padding:14px; border-radius:14px; border-left:5px solid #ff9800; }
+.grid-item h4 { font-size:1.15rem; color:#ffb74d; margin-bottom:4px; } .grid-item p{font-size:.92rem;color:#b8d4f0}
+.sim-box { background:#06121f; border-radius:18px; padding:20px 16px 16px; margin-top:8px; border:1px solid #1e3a5c; position:relative; }
+.sim-controls { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:center; margin-bottom:16px; background:#0a1a2e; padding:14px 16px; border-radius:36px; border:1px solid #1e3a5c; }
+.sim-controls label { display:flex; align-items:center; gap:8px; font-weight:600; color:#90b8e0; font-size:.85rem; }
+.sim-controls select { padding:8px 14px; border-radius:28px; border:none; font-weight:700; background:#1a3550; color:#c8e0f8; cursor:pointer; font-size:.85rem; }
+.sim-controls button { padding:8px 16px; border-radius:28px; border:none; font-weight:700; background:#1976d2; color:#fff; cursor:pointer; transition:.2s; font-size:.85rem; }
+.sim-controls button:hover{transform:scale(1.05);filter:brightness(1.2)}
+.sim-controls button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.sim-controls button.active-step{background:#00c853;color:#002200;box-shadow:0 0 16px rgba(0,200,80,.6);transform:scale(1.08)}
+.sim-controls button.done-step{background:#2e7d32;color:#a5d6a7}
+canvas { width:100%; height:auto; background:#040e1a; border-radius:14px; border:2px solid #1e3a5c; display:block; margin:0 auto; max-width:100%; }
+.sim-readout{text-align:center;font-size:1.2rem;font-weight:700;color:#ffd54f;margin:14px 0 6px}
+.sim-readout small{display:block;font-size:.9rem;color:#7a9cc0;font-weight:400}
+.sim-info{background:#0a1a2e;padding:12px 18px;border-radius:36px;margin-top:14px;text-align:center;font-size:.92rem;color:#a8c8e8;border:1px solid #1a3550;line-height:1.5}
+.teacher-note { background:linear-gradient(135deg,#0d2018,#0a1a14); border-left:5px solid #4caf50; border-radius:0 14px 14px 0; padding:14px 18px; margin-top:14px; font-size:.92rem; color:#b8e6c8; line-height:1.7; }
+.teacher-note strong { color:#66bb6a; }
+.copy-btn { position:fixed; top:16px; left:16px; z-index:1000; padding:11px 22px; border-radius:30px; border:none; background:linear-gradient(135deg,#00c853,#00e676); color:#002200; font-weight:900; font-size:.95rem; cursor:pointer; box-shadow:0 6px 20px rgba(0,200,80,.5); transition:.2s; }
+.copy-btn:hover { transform:scale(1.05); }
+.copy-btn.copied { background:linear-gradient(135deg,#ffc107,#ff8f00); color:#0a1628; }
+.main-footer{width:100%;background:#00101f;padding:18px 30px;text-align:center;border-top:3px solid #ffc107;color:#6a8ca8;font-size:.92rem;margin-top:20px;}
+.main-footer .highlight{color:#ffc107;font-weight:700}
+.step-indicator{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.step-dot{width:34px;height:34px;border-radius:50%;background:#1a3550;color:#6a8ca8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem;border:2px solid #2a4a6a;transition:.3s;cursor:default}
+.step-dot.done{background:#00c853;color:#002200;border-color:#00e676}
+.step-dot.current{background:#ff8f00;color:#0a1628;border-color:#ffc107;transform:scale(1.15);box-shadow:0 0 16px rgba(255,143,0,.6)}
+.fullscreen-btn{position:absolute;top:12px;right:12px;z-index:10;padding:8px 14px;border-radius:20px;border:none;background:rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:.78rem;cursor:pointer;transition:.2s;backdrop-filter:blur(4px)}
+.fullscreen-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ===== FULLSCREEN FIX ===== */
+.sim-box:fullscreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #06121f;
+  padding: 8px 16px;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  border-radius: 0;
+  border: none;
+}
+.sim-box:fullscreen canvas {
+  width: auto !important;
+  height: 68vh !important;
+  max-width: 100% !important;
+  object-fit: contain;
+}
+.sim-box:fullscreen .sim-controls,
+.sim-box:fullscreen .step-indicator,
+.sim-box:fullscreen .sim-readout,
+.sim-box:fullscreen .sim-info,
+.sim-box:fullscreen .teacher-note {
+  width: 100%;
+  max-width: 1300px;
+}
+.sim-box:fullscreen .sim-controls { padding: 8px 12px; margin-bottom: 6px; }
+.sim-box:fullscreen .step-indicator { margin-bottom: 6px; }
+.sim-box:fullscreen .step-dot { width: 26px; height: 26px; font-size: .7rem; }
+.sim-box:fullscreen .sim-readout { font-size: 1rem; margin: 4px 0 2px; }
+.sim-box:fullscreen .sim-info { font-size: .8rem; padding: 6px 12px; margin-top: 4px; }
+.sim-box:fullscreen .teacher-note { font-size: .78rem; padding: 6px 10px; margin-top: 4px; }
+.sim-box:fullscreen .fullscreen-btn {
+  top: 8px;
+  right: 8px;
+  position: fixed;
+  z-index: 100;
+}
+
+@media(max-width:800px){
+  .main-header h1{font-size:1.4rem}
+  .tab-btn{font-size:.85rem;padding:10px 12px}
+  .card{padding:14px}
+  .copy-btn{top:10px;left:10px;padding:8px 14px;font-size:.78rem}
+  .sim-controls{gap:6px;padding:10px}
+}
+</style>
+</head>
+<body>
+
+<button class="copy-btn" id="copyCodeBtn">📋 Copy Code</button>
+
+<header class="main-header">
+<h1>🌍 CAMBRIDGE SCHOLAR – EARTH & SPACE LAB</h1>
+<div class="sub">Interactive Simulations · Students Can See · Explore · Perform</div>
+</header>
+
+<div class="container">
+<div class="tabs" id="topicTabs">
+<button class="tab-btn active" data-topic="water"><span class="icon">💧</span> Water Cycle</button>
+<button class="tab-btn" data-topic="daynight"><span class="icon">🌍</span> Day & Night</button>
+</div>
+
+<!-- ================= WATER CYCLE ================= -->
+<div class="topic active" id="topic-water"><div class="card">
+<h2>💧 Water Cycle <small>the complete continuous journey of water</small></h2>
+<div class="desc">Watch the full cycle: Ocean → Evaporation → Clouds → Rain → Mountains → River → Groundwater → back to Ocean.</div>
+<div class="section-tabs" data-topic="water">
+<button class="section-tab active" data-section="def">Definition</button>
+<button class="section-tab" data-section="exp">Explanation</button>
+<button class="section-tab" data-section="types">Stages</button>
+<button class="section-tab" data-section="sim">Simulation</button>
+</div>
+<div class="panel active" id="water-def"><h3>📖 Definition</h3>
+<p>The <strong>Water Cycle</strong> is the continuous movement of water between the ocean, atmosphere, land, and underground. The Sun's heat drives it, and gravity pulls water back down.</p>
+<div class="teacher-note"><strong>Teacher's Note:</strong> Ask: "Where does rain come from?" (Clouds.) "Where do clouds come from?" (Evaporated water.) The same water has cycled for millions of years.</div>
+</div>
+<div class="panel" id="water-exp"><h3>💡 Explanation</h3>
+<p>The Sun heats water in oceans and lakes → <strong>evaporation</strong>. Plants release vapour → <strong>transpiration</strong>. Vapour rises, cools, and forms clouds → <strong>condensation</strong>. Water falls as rain → <strong>precipitation</strong>. It flows down mountains into rivers (<strong>runoff</strong>), seeps into the ground (<strong>infiltration</strong>), and returns to the ocean — and the cycle repeats.</p>
+<ul>
+<li><strong>Evaporation:</strong> Liquid water → water vapour.</li>
+<li><strong>Transpiration:</strong> Plants release water vapour.</li>
+<li><strong>Condensation:</strong> Water vapour → clouds.</li>
+<li><strong>Precipitation:</strong> Rain, snow, sleet, hail.</li>
+<li><strong>Runoff:</strong> Water flows over land into rivers.</li>
+<li><strong>Infiltration:</strong> Water seeps into the ground.</li>
+<li><strong>Collection:</strong> Water gathers in oceans and lakes.</li>
+</ul>
+</div>
+<div class="panel" id="water-types"><h3>🌊 The Seven Stages</h3>
+<div class="grid-3">
+<div class="grid-item"><h4>1. Evaporation</h4><p>Sun heats water → vapour rises from oceans.</p></div>
+<div class="grid-item"><h4>2. Transpiration</h4><p>Plants release water vapour through leaves.</p></div>
+<div class="grid-item"><h4>3. Condensation</h4><p>Vapour cools → forms clouds.</p></div>
+<div class="grid-item"><h4>4. Precipitation</h4><p>Rain, snow, or hail falls.</p></div>
+<div class="grid-item"><h4>5. Runoff</h4><p>Water flows over land into rivers.</p></div>
+<div class="grid-item"><h4>6. Infiltration</h4><p>Water seeps into soil and rocks.</p></div>
+<div class="grid-item"><h4>7. Collection</h4><p>Water gathers in oceans and lakes.</p></div>
+</div>
+</div>
+<div class="panel" id="water-sim"><h3>🎮 Interactive Simulation – Perform the Cycle Yourself</h3>
+<div class="sim-box" id="waterSimBox">
+<button class="fullscreen-btn" id="waterFsBtn">⛶ Fullscreen</button>
+<div class="step-indicator" id="waterSteps">
+<span class="step-dot current" data-step="1">1</span>
+<span class="step-dot" data-step="2">2</span>
+<span class="step-dot" data-step="3">3</span>
+<span class="step-dot" data-step="4">4</span>
+</div>
+<div class="sim-controls">
+<button id="wStep1">☀️ Evaporation</button>
+<button id="wStep2">☁️ Condensation</button>
+<button id="wStep3">🌧️ Precipitation</button>
+<button id="wStep4">🌊 Collection</button>
+<button id="waterResetBtn" style="background:#c62828">⟳ Reset</button>
+</div>
+<div class="sim-readout" id="waterReadout">STEP 1: EVAPORATION <small>Click the button above to perform each step of the water cycle</small></div>
+<canvas id="waterCanvas" width="1400" height="700"></canvas>
+<div class="sim-info" id="waterInfo">Press "Evaporation" to begin. Water rises from the ocean as vapour.</div>
+<div class="teacher-note"><strong>Real-Life:</strong> The rain falling today may have been drunk by a dinosaur millions of years ago! The same water, forever reused.</div>
+</div>
+</div>
+</div></div>
+
+<!-- ================= DAY & NIGHT ================= -->
+<div class="topic" id="topic-daynight"><div class="card">
+<h2>🌍 Day & Night <small>Earth's rotation creates day and night</small></h2>
+<div class="desc">The Earth spins on its axis once every 24 hours. The side facing the Sun has day, the other side has night.</div>
+<div class="section-tabs" data-topic="dn">
+<button class="section-tab active" data-section="def">Definition</button>
+<button class="section-tab" data-section="exp">Explanation</button>
+<button class="section-tab" data-section="types">Key Facts</button>
+<button class="section-tab" data-section="sim">Simulation</button>
+</div>
+<div class="panel active" id="dn-def"><h3>📖 Definition</h3>
+<p><strong>Day and Night</strong> are caused by the Earth's rotation on its axis. As the Earth spins, the side facing the Sun experiences day, and the opposite side experiences night.</p>
+<div class="teacher-note"><strong>Teacher's Note:</strong> Shine a torch on a globe. The lit side = day, the dark side = night. Rotate the globe slowly — day and night change places.</div>
+</div>
+<div class="panel" id="dn-exp"><h3>💡 Explanation</h3>
+<p>The Earth is a sphere that rotates once every <strong>24 hours</strong>. The half facing the Sun is lit (day) and the other half is dark (night). As the Earth turns eastwards, the Sun appears to rise in the east and set in the west.</p>
+<ul>
+<li><strong>Axis:</strong> Imaginary line from North to South Pole.</li>
+<li><strong>Rotation:</strong> One complete turn = 24 hours = one day.</li>
+<li><strong>Day side:</strong> Half facing the Sun.</li>
+<li><strong>Night side:</strong> Half facing away.</li>
+<li><strong>Sunrise & Sunset:</strong> Caused by eastward rotation.</li>
+</ul>
+</div>
+<div class="panel" id="dn-types"><h3>🌞 Key Facts</h3>
+<div class="grid-3">
+<div class="grid-item"><h4>Rotation Time</h4><p>24 hours for one full turn.</p></div>
+<div class="grid-item"><h4>Axis Tilt</h4><p>23.5° tilt — creates seasons too.</p></div>
+<div class="grid-item"><h4>Direction</h4><p>West to East — Sun rises in the east.</p></div>
+<div class="grid-item"><h4>Day Side</h4><p>Half facing the Sun = daytime.</p></div>
+<div class="grid-item"><h4>Night Side</h4><p>Half facing away = night.</p></div>
+<div class="grid-item"><h4>Result</h4><p>Every place gets both day and night daily.</p></div>
+</div>
+</div>
+<div class="panel" id="dn-sim"><h3>🎮 Interactive Simulation – Rotate Earth Yourself</h3>
+<div class="sim-box" id="dnSimBox">
+<button class="fullscreen-btn" id="dnFsBtn">⛶ Fullscreen</button>
+<div class="sim-controls">
+<label>Speed:
+<select id="dnSpeed">
+<option value="0.3">Slow</option>
+<option value="0.8" selected>Normal</option>
+<option value="1.8">Fast</option>
+</select></label>
+<button id="dnRotateBtn">▶ Rotate Earth</button>
+<button id="dnPauseBtn" disabled>⏸ Pause</button>
+<button id="dnLightsBtn">🏙️ City Lights ON</button>
+<button id="dnAtmoBtn">🌫️ Atmosphere ON</button>
+<button id="dnLabelsBtn">🏷️ Labels ON</button>
+<button id="dnResetBtn" style="background:#c62828">⟳ Reset</button>
+</div>
+<div class="sim-readout" id="dnReadout">EARTH ROTATION <small>Press "Rotate Earth" to start. One full turn = 24 hours</small></div>
+<canvas id="dnCanvas" width="1400" height="620"></canvas>
+<div class="sim-info" id="dnInfo">Press "Rotate Earth" to see how day and night change as the Earth spins.</div>
+<div class="teacher-note"><strong>Real-Life:</strong> When it is noon in Pakistan, it is midnight in America. That's the Earth rotating!</div>
+</div>
+</div>
+</div></div>
+</div>
+
+<footer class="main-footer"><span class="highlight">Muhammad Imran Khan</span> · MSc (Computer Science) · Regional Manager Sahiwal<br>Cambridge Scholar EdTech Schools Program · <span class="highlight">CANTAB PUBLISHER</span></footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ---- COPY BUTTON ---- */
+document.getElementById('copyCodeBtn').addEventListener('click',function(){
+ const code=document.documentElement.outerHTML;
+ navigator.clipboard.writeText(code).then(()=>{
+  this.textContent='✅ Copied!';this.classList.add('copied');
+  setTimeout(()=>{this.textContent='📋 Copy Code';this.classList.remove('copied')},2000);
+ }).catch(()=>{
+  const ta=document.createElement('textarea');ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  this.textContent='✅ Copied!';this.classList.add('copied');
+  setTimeout(()=>{this.textContent='📋 Copy Code';this.classList.remove('copied')},2000);
+ });
+});
+
+/* ---- TABS ---- */
+const topicTabs=document.querySelectorAll('.tab-btn');
+const topics={water:document.getElementById('topic-water'),daynight:document.getElementById('topic-daynight')};
+topicTabs.forEach(btn=>btn.addEventListener('click',function(){
+ topicTabs.forEach(b=>b.classList.remove('active'));this.classList.add('active');
+ const topic=this.dataset.topic;Object.keys(topics).forEach(k=>topics[k].classList.toggle('active',k===topic));
+}));
+document.querySelectorAll('.section-tabs').forEach(group=>{
+ const topic=group.dataset.topic,btns=group.querySelectorAll('.section-tab');
+ btns.forEach(btn=>btn.addEventListener('click',function(){
+  btns.forEach(b=>b.classList.remove('active'));this.classList.add('active');
+  const section=this.dataset.section,parent=this.closest('.card');
+  parent.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===topic+'-'+section));
+ }));
+});
+
+/* ---- FULLSCREEN ---- */
+function toggleFs(el){
+ if(!document.fullscreenElement){
+  el.requestFullscreen().catch(()=>{});
+ } else {
+  document.exitFullscreen();
+ }
+}
+document.getElementById('waterFsBtn').addEventListener('click',function(){
+ toggleFs(document.getElementById('waterSimBox'));
+});
+document.getElementById('dnFsBtn').addEventListener('click',function(){
+ toggleFs(document.getElementById('dnSimBox'));
+});
+
+/* ================= WATER CYCLE – MANUAL STEP CONTROL ================= */
+let waterCtx, waterFrame=0;
+let currentStep=0;
+let vapours=[], drops=[];
+let birds=[];
+let stepComplete={1:false,2:false,3:false,4:false};
+
+function initWater(){
+ vapours=[];drops=[];
+ currentStep=0;stepComplete={1:false,2:false,3:false,4:false};
+ // چھوٹے پرندے بنائیں
+ birds=[];
+ for(let i=0;i<6;i++){
+  birds.push({
+   x:Math.random()*1300,
+   y:80+Math.random()*180,
+   speed:0.6+Math.random()*0.8,
+   wingPhase:Math.random()*6.28,
+   size:0.8+Math.random()*0.5
+  });
+ }
+ updateStepUI();
+ document.getElementById('waterReadout').innerHTML='STEP 1: EVAPORATION <small>Click the button above to perform each step of the water cycle</small>';
+ document.getElementById('waterInfo').textContent='Press "Evaporation" to begin. Water rises from the ocean as vapour.';
+}
+
+function updateStepUI(){
+ document.querySelectorAll('#waterSteps .step-dot').forEach(dot=>{
+  const s=+dot.dataset.step;
+  dot.classList.remove('current','done');
+  if(stepComplete[s]) dot.classList.add('done');
+  if(s===currentStep) dot.classList.add('current');
+ });
+ const btns={1:'wStep1',2:'wStep2',3:'wStep3',4:'wStep4'};
+ Object.keys(btns).forEach(k=>{
+  const b=document.getElementById(btns[k]);
+  b.classList.remove('active-step','done-step');
+  if(stepComplete[k]) b.classList.add('done-step');
+  if(+k===currentStep) b.classList.add('active-step');
+ });
+}
+
+function startStep(n){
+ if(stepComplete[n]) return;
+ currentStep=n;
+ updateStepUI();
+ const names={1:'EVAPORATION',2:'CONDENSATION',3:'PRECIPITATION',4:'COLLECTION'};
+ const tips={
+  1:'Evaporation: Sun heats the ocean → water vapour rises into the sky.',
+  2:'Condensation: Vapour cools high in the sky → forms clouds.',
+  3:'Precipitation: Water falls from clouds as rain.',
+  4:'Collection: Water gathers in oceans and lakes — cycle complete!'
+ };
+ document.getElementById('waterReadout').innerHTML='STEP '+n+': '+names[n]+' <small>Watch the animation...</small>';
+ document.getElementById('waterInfo').textContent=tips[n];
+}
+
+document.getElementById('wStep1').addEventListener('click',()=>startStep(1));
+document.getElementById('wStep2').addEventListener('click',()=>startStep(2));
+document.getElementById('wStep3').addEventListener('click',()=>startStep(3));
+document.getElementById('wStep4').addEventListener('click',()=>startStep(4));
+document.getElementById('waterResetBtn').addEventListener('click',initWater);
+
+function completeStep(n){
+ stepComplete[n]=true;
+ currentStep=0;
+ updateStepUI();
+ if(n<4){
+  document.getElementById('waterReadout').innerHTML='STEP '+n+' COMPLETE ✓ <small>Now click Step '+(n+1)+': '+['','Evaporation','Condensation','Precipitation','Collection'][n+1]+'</small>';
+ } else {
+  document.getElementById('waterReadout').innerHTML='🎉 WATER CYCLE COMPLETE! <small>All 4 steps performed. Press Reset to try again.</small>';
+  document.getElementById('waterInfo').textContent='Excellent! You have completed the entire water cycle. The same water keeps cycling around the Earth.';
+ }
+}
+
+/* ---------- DRAW BIRD ---------- */
+function drawBird(x,y,size,phase){
+ waterCtx.save();
+ waterCtx.translate(x,y);
+ waterCtx.scale(size,size);
+ waterCtx.strokeStyle='#2a1a0a';
+ waterCtx.lineWidth=2;
+ waterCtx.lineCap='round';
+ const wingUp=Math.sin(phase)*6;
+ waterCtx.beginPath();
+ waterCtx.moveTo(-10,0);
+ waterCtx.quadraticCurveTo(-5,-4+wingUp,0,-2);
+ waterCtx.quadraticCurveTo(5,-4+wingUp,10,0);
+ waterCtx.stroke();
+ waterCtx.restore();
+}
+
+function waterLoop(){
+ const c=document.getElementById('waterCanvas');if(!waterCtx)return;
+ const w=c.width,h=c.height;
+ waterCtx.clearRect(0,0,w,h);
+ waterFrame++;
+
+ /* ---------- SKY ---------- */
+ const sky=waterCtx.createLinearGradient(0,0,0,h*0.72);
+ sky.addColorStop(0,'#0d2a5a');
+ sky.addColorStop(0.5,'#3a7ab5');
+ sky.addColorStop(1,'#87ceeb');
+ waterCtx.fillStyle=sky;waterCtx.fillRect(0,0,w,h*0.72);
+
+ /* ---------- SUN ---------- */
+ const sunX=1250,sunY=100,sunR=55;
+ const sunGlow=waterCtx.createRadialGradient(sunX,sunY,5,sunX,sunY,sunR*2.5);
+ sunGlow.addColorStop(0,'#fffde7');
+ sunGlow.addColorStop(0.35,'#ffeb3b');
+ sunGlow.addColorStop(0.7,'rgba(255,180,0,.35)');
+ sunGlow.addColorStop(1,'rgba(255,150,0,0)');
+ waterCtx.fillStyle=sunGlow;
+ waterCtx.beginPath();waterCtx.arc(sunX,sunY,sunR*2.5,0,7);waterCtx.fill();
+ waterCtx.fillStyle='#fffde7';
+ waterCtx.beginPath();waterCtx.arc(sunX,sunY,sunR,0,7);waterCtx.fill();
+ waterCtx.strokeStyle='rgba(255,235,59,.7)';waterCtx.lineWidth=3;
+ for(let i=0;i<14;i++){
+  const a=(waterFrame*0.008+i*Math.PI/7);
+  waterCtx.beginPath();
+  waterCtx.moveTo(sunX+Math.cos(a)*(sunR+8),sunY+Math.sin(a)*(sunR+8));
+  waterCtx.lineTo(sunX+Math.cos(a)*(sunR+28),sunY+Math.sin(a)*(sunR+28));
+  waterCtx.stroke();
+ }
+ waterCtx.fillStyle='#fff';waterCtx.font='bold 16px sans-serif';
+ waterCtx.fillText('☀️ SUN',sunX-32,sunY+sunR+26);
+
+ /* ---------- BIRDS ---------- */
+ birds.forEach(b=>{
+  b.x -= b.speed;
+  b.wingPhase += 0.25;
+  if(b.x < -30) { b.x = 1430; b.y = 80+Math.random()*180; }
+  drawBird(b.x,b.y,b.size,b.wingPhase);
+ });
+
+ /* ---------- MOUNTAINS ---------- */
+ function drawMountain(peaks,color,snowColor){
+  waterCtx.fillStyle=color;
+  waterCtx.beginPath();
+  waterCtx.moveTo(0,470);
+  peaks.forEach(p=>{waterCtx.lineTo(p[0],p[1])});
+  waterCtx.lineTo(w,470);waterCtx.lineTo(w,h);waterCtx.lineTo(0,h);waterCtx.closePath();
+  waterCtx.fill();
+  if(snowColor){
+   waterCtx.fillStyle=snowColor;
+   peaks.forEach(p=>{
+    if(p[1]<320){
+     waterCtx.beginPath();
+     waterCtx.moveTo(p[0],p[1]);
+     waterCtx.lineTo(p[0]-18,p[1]+24);
+     waterCtx.lineTo(p[0]+18,p[1]+24);
+     waterCtx.closePath();waterCtx.fill();
+    }
+   });
+  }
+ }
+ drawMountain([[60,360],[200,300],[340,340],[460,250],[600,320],[740,270],[880,330],[1000,290],[1140,340],[1280,300],[1400,360]],'#4a6b7a',null);
+ drawMountain([[20,400],[150,340],[300,380],[430,300],[560,360],[700,320],[840,380],[980,340],[1120,390],[1260,350],[1400,400]],'#5d8090','#ffffff');
+
+ /* ---------- TREES ---------- */
+ function drawTree(x,y,scale){
+  waterCtx.fillStyle='#5d4037';
+  waterCtx.fillRect(x-2*scale,y,4*scale,18*scale);
+  waterCtx.fillStyle='#2e7d32';
+  waterCtx.beginPath();waterCtx.arc(x,y-4*scale,12*scale,0,7);waterCtx.fill();
+  waterCtx.fillStyle='#43a047';
+  waterCtx.beginPath();waterCtx.arc(x-4*scale,y-8*scale,9*scale,0,7);waterCtx.fill();
+  waterCtx.beginPath();waterCtx.arc(x+6*scale,y-6*scale,8*scale,0,7);waterCtx.fill();
+ }
+ drawTree(160,460,1.2);
+ drawTree(230,465,1.0);
+ drawTree(300,458,1.1);
+ drawTree(370,463,0.95);
+
+ /* ---------- LAKE ---------- */
+ waterCtx.fillStyle='#1976d2';
+ waterCtx.beginPath();
+ waterCtx.ellipse(350,505,90,20,0,0,7);
+ waterCtx.fill();
+ waterCtx.fillStyle='rgba(255,255,255,.3)';
+ waterCtx.beginPath();
+ waterCtx.ellipse(330,500,35,6,0,0,7);
+ waterCtx.fill();
+
+ /* ---------- GROUND ---------- */
+ const groundGrad=waterCtx.createLinearGradient(0,520,0,h);
+ groundGrad.addColorStop(0,'#6d4c41');
+ groundGrad.addColorStop(0.3,'#5d4037');
+ groundGrad.addColorStop(1,'#3e2723');
+ waterCtx.fillStyle=groundGrad;
+ waterCtx.beginPath();
+ waterCtx.moveTo(0,520);
+ for(let x=0;x<=w;x+=30){
+  const y=520+Math.sin(x*0.015)*8;
+  waterCtx.lineTo(x,y);
+ }
+ waterCtx.lineTo(w,h);waterCtx.lineTo(0,h);waterCtx.closePath();waterCtx.fill();
+
+ /* ---------- RIVER (Natural curvy river) ---------- */
+ const riverPath = [
+  {x:450, y:455},
+  {x:490, y:478},
+  {x:545, y:500},
+  {x:610, y:518},
+  {x:680, y:532},
+  {x:755, y:542},
+  {x:830, y:550},
+  {x:900, y:556}
+ ];
+
+ // ندی کا بیرونی کنارہ
+ waterCtx.strokeStyle='#0d47a1';
+ waterCtx.lineWidth=30;
+ waterCtx.lineCap='round';
+ waterCtx.lineJoin='round';
+ waterCtx.beginPath();
+ waterCtx.moveTo(riverPath[0].x,riverPath[0].y);
+ for(let i=1;i<riverPath.length;i++){
+  const prev=riverPath[i-1];
+  const curr=riverPath[i];
+  const cpx=(prev.x+curr.x)/2;
+  const cpy=(prev.y+curr.y)/2;
+  waterCtx.quadraticCurveTo(prev.x,prev.y,cpx,cpy);
+ }
+ waterCtx.stroke();
+
+ // ندی کا درمیانی حصہ
+ waterCtx.strokeStyle='#1e88e5';
+ waterCtx.lineWidth=20;
+ waterCtx.beginPath();
+ waterCtx.moveTo(riverPath[0].x,riverPath[0].y);
+ for(let i=1;i<riverPath.length;i++){
+  const prev=riverPath[i-1];
+  const curr=riverPath[i];
+  const cpx=(prev.x+curr.x)/2;
+  const cpy=(prev.y+curr.y)/2;
+  waterCtx.quadraticCurveTo(prev.x,prev.y,cpx,cpy);
+ }
+ waterCtx.stroke();
+
+ // لہریں
+ waterCtx.strokeStyle='rgba(255,255,255,0.55)';
+ waterCtx.lineWidth=3;
+ waterCtx.beginPath();
+ waterCtx.moveTo(riverPath[0].x,riverPath[0].y);
+ for(let i=1;i<riverPath.length;i++){
+  const prev=riverPath[i-1];
+  const curr=riverPath[i];
+  const cpx=(prev.x+curr.x)/2;
+  const cpy=(prev.y+curr.y)/2;
+  waterCtx.quadraticCurveTo(prev.x,prev.y,cpx,cpy);
+ }
+ waterCtx.stroke();
+
+ // ندی پر بہتے قطرے
+ if(currentStep===4 || stepComplete[4] || currentStep===3 || stepComplete[3]){
+  for(let k=0;k<8;k++){
+   const t=((waterFrame*0.008)+k/8)%1;
+   const seg=t*(riverPath.length-1);
+   const si=Math.floor(seg);
+   const st=seg-si;
+   if(si<riverPath.length-1){
+    const p1=riverPath[si];
+    const p2=riverPath[si+1];
+    const hx=p1.x+(p2.x-p1.x)*st;
+    const hy=p1.y+(p2.y-p1.y)*st;
+    waterCtx.fillStyle='rgba(255,255,255,0.8)';
+    waterCtx.beginPath();
+    waterCtx.arc(hx,hy,2.5,0,7);
+    waterCtx.fill();
+   }
+  }
+ }
+
+ // ندی کا لیبل
+ waterCtx.fillStyle='#fff';
+ waterCtx.font='bold 16px sans-serif';
+ waterCtx.fillText('🏞️ RIVER (Runoff)',540,530);
+
+ /* ---------- OCEAN ---------- */
+ const ocean=waterCtx.createLinearGradient(0,560,0,h);
+ ocean.addColorStop(0,'#1976d2');
+ ocean.addColorStop(0.4,'#0d47a1');
+ ocean.addColorStop(1,'#062a5c');
+ waterCtx.fillStyle=ocean;
+ waterCtx.beginPath();
+ waterCtx.moveTo(850,575);
+ waterCtx.quadraticCurveTo(950,555,1050,565);
+ waterCtx.quadraticCurveTo(1180,580,1400,560);
+ waterCtx.lineTo(1400,h);waterCtx.lineTo(850,h);waterCtx.closePath();waterCtx.fill();
+ waterCtx.strokeStyle='rgba(255,255,255,.4)';waterCtx.lineWidth=2;
+ for(let i=0;i<5;i++){
+  const y=585+i*18;
+  waterCtx.beginPath();
+  for(let x=850;x<1400;x+=10){
+   const yy=y+Math.sin((x+waterFrame*2+i*30)*0.03)*3;
+   x===850?waterCtx.moveTo(x,yy):waterCtx.lineTo(x,yy);
+  }
+  waterCtx.stroke();
+ }
+ waterCtx.fillStyle='#fff';waterCtx.font='bold 18px sans-serif';
+ waterCtx.fillText('🌊 OCEAN (Collection)',1050,660);
+ waterCtx.font='bold 15px sans-serif';
+ waterCtx.fillStyle='#90caf9';
+ waterCtx.fillText('💧 Groundwater (Infiltration)',250,670);
+
+ /* ---------- GROUNDWATER PARTICLES ---------- */
+ if(currentStep===4 || stepComplete[4]){
+  for(let i=0;i<25;i++){
+   const gx=120+i*42+Math.sin(waterFrame*0.02+i)*10;
+   const gy=600+Math.cos(waterFrame*0.03+i)*8;
+   waterCtx.fillStyle='rgba(100,180,255,.7)';
+   waterCtx.beginPath();waterCtx.arc(gx,gy,2.5,0,7);waterCtx.fill();
+  }
+ }
+
+ /* ---------- STEP 1: EVAPORATION ---------- */
+ if(currentStep===1 || stepComplete[1]){
+  const boost = currentStep===1 ? 3 : 1;
+  if(waterFrame%Math.round(12/boost)===0 && vapours.length<80){
+   vapours.push({x:950+Math.random()*350,y:565-Math.random()*10,vx:(Math.random()-.5)*0.5,vy:-0.8-Math.random()*1.4,r:2+Math.random()*3,life:0});
+  }
+  if(waterFrame%Math.round(25/boost)===0 && vapours.length<90){
+   vapours.push({x:280+Math.random()*140,y:465,vx:(Math.random()-.5)*0.4,vy:-0.6-Math.random()*1,r:2+Math.random()*2,life:0});
+  }
+ }
+ vapours.forEach((v,i)=>{
+  v.x+=v.vx;v.y+=v.vy*1.6;v.life++;
+  const alpha=Math.max(0,1-v.life/280);
+  waterCtx.fillStyle=`rgba(200,230,255,${alpha*0.85})`;
+  waterCtx.beginPath();waterCtx.arc(v.x,v.y,v.r,0,7);waterCtx.fill();
+  if(v.y<160||v.life>280){vapours.splice(i,1)}
+ });
+ if(currentStep===1){
+  waterCtx.fillStyle='#ffeb3b';waterCtx.font='bold 18px sans-serif';
+  waterCtx.fillText('↑ EVAPORATION (water → vapour)',940,540);
+  waterCtx.fillText('↑ EVAPORATION from plants',220,440);
+  if(waterFrame%120===0) completeStep(1);
+ }
+
+ /* ---------- STEP 2: CONDENSATION ---------- */
+ function drawCloud(cx,cy,scale){
+  waterCtx.fillStyle='rgba(255,255,255,.92)';
+  waterCtx.beginPath();
+  waterCtx.arc(cx-55*scale,cy,38*scale,0,7);
+  waterCtx.arc(cx-18*scale,cy-18*scale,48*scale,0,7);
+  waterCtx.arc(cx+30*scale,cy-12*scale,44*scale,0,7);
+  waterCtx.arc(cx+65*scale,cy+4*scale,36*scale,0,7);
+  waterCtx.arc(cx,cy+15*scale,42*scale,0,7);
+  waterCtx.fill();
+  waterCtx.fillStyle='rgba(180,200,220,.6)';
+  waterCtx.beginPath();
+  waterCtx.ellipse(cx,cy+28*scale,100*scale,12*scale,0,0,7);
+  waterCtx.fill();
+ }
+ if(stepComplete[2]||currentStep===2){
+  const grow = currentStep===2 ? Math.min(1,(waterFrame%120)/60) : 1;
+  drawCloud(550,150,1.1*grow);
+  drawCloud(800,175,0.95*grow);
+  drawCloud(350,185,0.8*grow);
+  waterCtx.fillStyle='#fff';waterCtx.font='bold 18px sans-serif';
+  waterCtx.fillText('☁️ CLOUDS (Condensation)',480,70);
+  if(currentStep===2){
+   waterCtx.fillStyle='#ffeb3b';waterCtx.font='bold 16px sans-serif';
+   waterCtx.fillText('Vapour cools → clouds form',520,100);
+   if(waterFrame%120===0) completeStep(2);
+  }
+ }
+
+ /* ---------- STEP 3: PRECIPITATION ---------- */
+ if(currentStep===3 || stepComplete[3]){
+  const rainChance = currentStep===3 ? 4 : 1;
+  if(waterFrame%3===0){
+   for(let k=0;k<rainChance;k++){
+    drops.push({x:350+Math.random()*500,y:190+Math.random()*30,vy:3+Math.random()*3,vx:(Math.random()-.5)*0.5});
+   }
+  }
+ }
+ drops.forEach((d,i)=>{
+  d.y+=d.vy;d.x+=d.vx;
+  waterCtx.strokeStyle='rgba(150,210,255,.9)';waterCtx.lineWidth=2;
+  waterCtx.beginPath();waterCtx.moveTo(d.x,d.y);waterCtx.lineTo(d.x-1,d.y+10);waterCtx.stroke();
+  if(d.y>465){
+   for(let s=0;s<3;s++){
+    waterCtx.fillStyle='rgba(200,230,255,.8)';
+    waterCtx.beginPath();waterCtx.arc(d.x+(s-1)*4,465-2,2,0,7);waterCtx.fill();
+   }
+   drops.splice(i,1);
+  }
+ });
+ if(currentStep===3){
+  waterCtx.fillStyle='#ffeb3b';waterCtx.font='bold 18px sans-serif';
+  waterCtx.fillText('↓ PRECIPITATION (rain falls)',600,230);
+  if(waterFrame%140===0) completeStep(3);
+ }
+
+ /* ---------- STEP 4: COLLECTION ---------- */
+ if(stepComplete[4]||currentStep===4){
+  waterCtx.fillStyle='#ffeb3b';waterCtx.font='bold 18px sans-serif';
+  waterCtx.fillText('🌊 COLLECTION (water gathers)',1000,680);
+  if(currentStep===4){
+   waterCtx.fillStyle='#00e676';waterCtx.font='bold 20px sans-serif';
+   waterCtx.fillText('Water returns to ocean & lakes',950,700);
+   if(waterFrame%120===0) completeStep(4);
+  }
+ }
+
+ /* ---------- MAIN TITLE ---------- */
+ waterCtx.fillStyle='#ffeb3b';waterCtx.font='bold 22px sans-serif';
+ waterCtx.fillText('💧 WATER CYCLE',25,45);
+
+ requestAnimationFrame(waterLoop);
+}
+
+/* ================= DAY & NIGHT – MANUAL CONTROL ================= */
+let dnCtx,dnAngle=0,dnSpeed=0.8,dnPaused=true,dnRotating=false;
+let dnShowLights=true,dnShowAtmo=true,dnShowLabels=true;
+const stars=[];
+
+const continents=[
+ {lat:10,lon:-20,size:1.3,color:'#8b6a3a'},
+ {lat:50,lon:10,size:0.7,color:'#6b8a3a'},
+ {lat:45,lon:80,size:1.7,color:'#8b9a4a'},
+ {lat:-25,lon:135,size:1.1,color:'#a08050'},
+ {lat:45,lon:-100,size:1.6,color:'#8b7a4a'},
+ {lat:-15,lon:-60,size:1.2,color:'#5a8a3a'},
+ {lat:-85,lon:0,size:1.2,color:'#e8f4ff'}
+];
+
+const cities=[
+ {lat:24,lon:67},{lat:31,lon:74},{lat:30,lon:31},{lat:51,lon:0},
+ {lat:40,lon:-74},{lat:35,lon:139},{lat:-33,lon:151},{lat:19,lon:-99},
+ {lat:-23,lon:-46},{lat:55,lon:37},{lat:28,lon:77},{lat:39,lon:116}
+];
+
+function initStars(){
+ stars.length=0;
+ for(let i=0;i<250;i++){
+  stars.push({x:Math.random()*1400,y:Math.random()*620,r:Math.random()*1.5+0.4,twinkle:Math.random()*6.28});
+ }
+}
+
+function drawEarth(ex,ey,er,rotation){
+ const oceanGrad=dnCtx.createRadialGradient(ex-er*0.4,ey-er*0.4,er*0.1,ex,ey,er);
+ oceanGrad.addColorStop(0,'#4a9fe0');
+ oceanGrad.addColorStop(0.5,'#1565c0');
+ oceanGrad.addColorStop(1,'#0a2a5c');
+ dnCtx.fillStyle=oceanGrad;
+ dnCtx.beginPath();dnCtx.arc(ex,ey,er,0,7);dnCtx.fill();
+
+ dnCtx.save();
+ dnCtx.beginPath();dnCtx.arc(ex,ey,er,0,7);dnCtx.clip();
+ continents.forEach(ct=>{
+  let visLon = ct.lon + rotation*30;
+  visLon = ((visLon % 360) + 360) % 360;
+  if(visLon > 180) visLon -= 360;
+  if(Math.abs(visLon) < 95){
+   const latRad = ct.lat * Math.PI/180;
+   const lonRad = visLon * Math.PI/180;
+   const cosLat = Math.cos(latRad);
+   const cx2 = ex + Math.sin(lonRad) * cosLat * er * 0.92;
+   const cy2 = ey - Math.sin(latRad) * er * 0.92;
+   const foreshorten = Math.cos(lonRad);
+   const alpha = Math.max(0.25, foreshorten);
+   const s = ct.size * er * 0.18 * Math.max(0.3, foreshorten);
+   dnCtx.fillStyle = ct.color;
+   dnCtx.globalAlpha = alpha;
+   dnCtx.beginPath();
+   const seed = ct.lat + ct.lon;
+   for(let a=0;a<12;a++){
+    const ang = (a/12)*Math.PI*2;
+    const wobble = 1 + 0.35*Math.sin(seed+a*1.7) + 0.15*Math.cos(seed*2+a*2.3);
+    const px = cx2 + Math.cos(ang)*s*wobble;
+    const py = cy2 + Math.sin(ang)*s*wobble*0.85;
+    a===0 ? dnCtx.moveTo(px,py) : dnCtx.lineTo(px,py);
+   }
+   dnCtx.closePath();
+   dnCtx.fill();
+   dnCtx.globalAlpha = 1;
+  }
+ });
+ dnCtx.restore();
+
+ if(dnShowAtmo){
+  const atmo = dnCtx.createRadialGradient(ex,ey,er*0.95,ex,ey,er*1.18);
+  atmo.addColorStop(0,'rgba(120,200,255,0.6)');
+  atmo.addColorStop(0.6,'rgba(80,160,255,0.28)');
+  atmo.addColorStop(1,'rgba(80,160,255,0)');
+  dnCtx.fillStyle=atmo;
+  dnCtx.beginPath();dnCtx.arc(ex,ey,er*1.18,0,7);dnCtx.fill();
+ }
+
+ dnCtx.save();
+ dnCtx.beginPath();dnCtx.arc(ex,ey,er,0,7);dnCtx.clip();
+ const nightGrad=dnCtx.createLinearGradient(ex-er,0,ex+er,0);
+ nightGrad.addColorStop(0,'rgba(0,0,10,0)');
+ nightGrad.addColorStop(0.42,'rgba(0,0,10,0)');
+ nightGrad.addColorStop(0.58,'rgba(0,0,15,0.6)');
+ nightGrad.addColorStop(0.78,'rgba(0,0,20,0.9)');
+ nightGrad.addColorStop(1,'rgba(0,0,25,0.97)');
+ dnCtx.fillStyle=nightGrad;
+ dnCtx.fillRect(ex-er,ey-er,er*2,er*2);
+
+ if(dnShowLights){
+  cities.forEach((city,i)=>{
+   let visLon = city.lon + rotation*30;
+   visLon = ((visLon % 360) + 360) % 360;
+   if(visLon > 180) visLon -= 360;
+   if(Math.abs(visLon) < 95){
+    const latRad = city.lat * Math.PI/180;
+    const lonRad = visLon * Math.PI/180;
+    const cosLat = Math.cos(latRad);
+    const cx4 = ex + Math.sin(lonRad) * cosLat * er * 0.92;
+    const cy4 = ey - Math.sin(latRad) * er * 0.92;
+    if(Math.sin(lonRad) > 0.05){
+     const flicker = 0.7 + 0.3*Math.sin(dnAngle*3 + i*1.7);
+     const glow = dnCtx.createRadialGradient(cx4,cy4,0,cx4,cy4,8);
+     glow.addColorStop(0,`rgba(255,235,150,${flicker})`);
+     glow.addColorStop(0.4,`rgba(255,200,80,${flicker*0.6})`);
+     glow.addColorStop(1,'rgba(255,180,40,0)');
+     dnCtx.fillStyle=glow;
+     dnCtx.beginPath();dnCtx.arc(cx4,cy4,8,0,7);dnCtx.fill();
+     dnCtx.fillStyle=`rgba(255,250,200,${flicker})`;
+     dnCtx.beginPath();dnCtx.arc(cx4,cy4,1.8,0,7);dnCtx.fill();
+    }
+   }
+  });
+ }
+ dnCtx.restore();
+
+ dnCtx.save();
+ dnCtx.beginPath();dnCtx.arc(ex,ey,er,0,7);dnCtx.clip();
+ const dayHi=dnCtx.createRadialGradient(ex-er*0.55,ey-er*0.3,5,ex-er*0.55,ey-er*0.3,er*0.9);
+ dayHi.addColorStop(0,'rgba(255,255,220,0.3)');
+ dayHi.addColorStop(1,'rgba(255,255,220,0)');
+ dnCtx.fillStyle=dayHi;
+ dnCtx.beginPath();dnCtx.arc(ex-er*0.55,ey-er*0.3,er*0.9,0,7);dnCtx.fill();
+ dnCtx.restore();
+}
+
+function dnLoop(){
+ const c=document.getElementById('dnCanvas');if(!dnCtx)return;
+ const w=c.width,h=c.height;
+ dnCtx.clearRect(0,0,w,h);
+
+ const space=dnCtx.createLinearGradient(0,0,w,h);
+ space.addColorStop(0,'#000005');
+ space.addColorStop(1,'#050520');
+ dnCtx.fillStyle=space;dnCtx.fillRect(0,0,w,h);
+
+ stars.forEach(s=>{
+  const tw=0.5+0.5*Math.sin(dnAngle*2+s.twinkle);
+  dnCtx.fillStyle=`rgba(255,255,255,${tw})`;
+  dnCtx.beginPath();dnCtx.arc(s.x,s.y,s.r,0,7);dnCtx.fill();
+ });
+
+ const sunX=140,sunY=h/2,sunR=85;
+ const sunGlow=dnCtx.createRadialGradient(sunX,sunY,10,sunX,sunY,sunR*3);
+ sunGlow.addColorStop(0,'#fffde7');
+ sunGlow.addColorStop(0.25,'#ffeb3b');
+ sunGlow.addColorStop(0.55,'rgba(255,180,0,.5)');
+ sunGlow.addColorStop(1,'rgba(255,150,0,0)');
+ dnCtx.fillStyle=sunGlow;
+ dnCtx.beginPath();dnCtx.arc(sunX,sunY,sunR*3,0,7);dnCtx.fill();
+ dnCtx.fillStyle='#fffde7';
+ dnCtx.beginPath();dnCtx.arc(sunX,sunY,sunR,0,7);dnCtx.fill();
+ dnCtx.strokeStyle='rgba(255,235,59,.6)';dnCtx.lineWidth=4;
+ for(let i=0;i<16;i++){
+  const a=(dnAngle*0.3+i*Math.PI/8);
+  const r1=sunR+8,r2=sunR+34+Math.sin(dnAngle*2+i)*8;
+  dnCtx.beginPath();
+  dnCtx.moveTo(sunX+Math.cos(a)*r1,sunY+Math.sin(a)*r1);
+  dnCtx.lineTo(sunX+Math.cos(a)*r2,sunY+Math.sin(a)*r2);
+  dnCtx.stroke();
+ }
+
+ const ex=850,ey=h/2,er=185;
+ dnCtx.strokeStyle='rgba(255,235,120,.22)';dnCtx.lineWidth=16;
+ [-50,0,50].forEach(offset=>{
+  dnCtx.beginPath();
+  dnCtx.moveTo(sunX+sunR+10,sunY+offset);
+  dnCtx.lineTo(ex-er-10,ey+offset*0.8);
+  dnCtx.stroke();
+ });
+
+ drawEarth(ex,ey,er,dnAngle);
+
+ /* ---------- AXIS ---------- */
+ dnCtx.strokeStyle='rgba(255,255,255,.75)';dnCtx.lineWidth=2;dnCtx.setLineDash([8,6]);
+ dnCtx.beginPath();dnCtx.moveTo(ex,ey-er-50);dnCtx.lineTo(ex,ey+er+50);dnCtx.stroke();
+ dnCtx.setLineDash([]);
+ dnCtx.fillStyle='#fff';
+ dnCtx.beginPath();
+ dnCtx.moveTo(ex,ey-er-58);dnCtx.lineTo(ex-9,ey-er-40);dnCtx.lineTo(ex+9,ey-er-40);
+ dnCtx.closePath();dnCtx.fill();
+ dnCtx.beginPath();
+ dnCtx.moveTo(ex,ey+er+58);dnCtx.lineTo(ex-9,ey+er+40);dnCtx.lineTo(ex+9,ey+er+40);
+ dnCtx.closePath();dnCtx.fill();
+
+ /* ---------- ROTATION ARROW ---------- */
+ dnCtx.strokeStyle='#00e5ff';dnCtx.lineWidth=4;
+ dnCtx.beginPath();
+ dnCtx.arc(ex,ey-er-85,55,Math.PI*0.15,Math.PI*0.85);
+ dnCtx.stroke();
+ const arrowAngle=Math.PI*0.15;
+ const ax=ex+Math.cos(arrowAngle)*55,ay=ey-er-85+Math.sin(arrowAngle)*55;
+ dnCtx.beginPath();
+ dnCtx.moveTo(ax,ay);
+ dnCtx.lineTo(ax+12,ay-5);
+ dnCtx.lineTo(ax+5,ay-16);
+ dnCtx.closePath();
+ dnCtx.fillStyle='#00e5ff';dnCtx.fill();
+
+ /* ---------- LABELS ---------- */
+ if(dnShowLabels){
+  dnCtx.font='bold 18px sans-serif';
+  dnCtx.fillStyle='#fff';
+  dnCtx.fillText('N (North Pole)',ex-90,ey-er-65);
+  dnCtx.fillText('S (South Pole)',ex-90,ey+er+85);
+  dnCtx.fillStyle='#00e5ff';
+  dnCtx.font='bold 17px sans-serif';
+  dnCtx.fillText('🔄 ROTATION (West → East)',ex-220,ey-er-95);
+  dnCtx.fillStyle='#fff';
+  dnCtx.font='bold 26px sans-serif';
+  dnCtx.fillText('☀️ SUN',sunX-48,sunY+sunR+55);
+
+  dnCtx.font='bold 15px sans-serif';
+  dnCtx.fillStyle='#ffeb3b';
+  dnCtx.fillText('Light Rays →',sunX+sunR+30,sunY-70);
+
+  dnCtx.textAlign='center';
+  dnCtx.fillStyle='rgba(255,245,150,0.95)';
+  dnCtx.font='bold 28px sans-serif';
+  dnCtx.fillText('☀️ DAY',ex-er*0.55,ey+er*0.55);
+  dnCtx.font='bold 15px sans-serif';
+  dnCtx.fillStyle='rgba(255,245,150,0.85)';
+  dnCtx.fillText('(Facing Sun)',ex-er*0.55,ey+er*0.55+24);
+
+  dnCtx.fillStyle='rgba(180,200,255,0.95)';
+  dnCtx.font='bold 28px sans-serif';
+  dnCtx.fillText('🌙 NIGHT',ex+er*0.55,ey+er*0.55);
+  dnCtx.font='bold 15px sans-serif';
+  dnCtx.fillStyle='rgba(180,200,255,0.85)';
+  dnCtx.fillText('(Facing Away)',ex+er*0.55,ey+er*0.55+24);
+  dnCtx.textAlign='left';
+
+  dnCtx.fillStyle='#fff';
+  dnCtx.font='bold 18px sans-serif';
+  dnCtx.fillText('🌍 EARTH',ex-45,ey+er+120);
+  dnCtx.font='bold 14px sans-serif';
+  dnCtx.fillStyle='#a8d8ff';
+  dnCtx.fillText('(Rotates once every 24 hours)',ex-120,ey+er+145);
+ }
+
+ /* ---------- YOU MARKER ---------- */
+ const personLon=dnAngle*30;
+ const personRad=personLon*Math.PI/180;
+ const personLat=25*Math.PI/180;
+ const cosPersonLat=Math.cos(personLat);
+ const px=ex+Math.sin(personRad)*cosPersonLat*er*0.9;
+ const py=ey-Math.sin(personLat)*er*0.9;
+ if(Math.cos(personRad)>-0.3){
+  const facingSun = Math.cos(personRad)>0;
+  const markerColor = facingSun ? '#ffffff' : '#ffdd44';
+  const mkGlow=dnCtx.createRadialGradient(px,py,0,px,py,22);
+  mkGlow.addColorStop(0,markerColor);
+  mkGlow.addColorStop(0.5,facingSun?'rgba(255,255,255,.5)':'rgba(255,220,80,.5)');
+  mkGlow.addColorStop(1,'rgba(255,255,255,0)');
+  dnCtx.fillStyle=mkGlow;
+  dnCtx.beginPath();dnCtx.arc(px,py,22,0,7);dnCtx.fill();
+  dnCtx.fillStyle=markerColor;
+  dnCtx.beginPath();dnCtx.arc(px,py,6,0,7);dnCtx.fill();
+  dnCtx.strokeStyle='#000';dnCtx.lineWidth=1.5;dnCtx.stroke();
+  if(dnShowLabels){
+   dnCtx.font='bold 15px sans-serif';
+   dnCtx.fillStyle=markerColor;
+   dnCtx.textAlign='center';
+   dnCtx.fillText(facingSun?'YOU (Day)':'YOU (Night)',px,py-28);
+   dnCtx.textAlign='left';
+  }
+ }
+
+ /* ---------- CITY LIGHTS LABEL ---------- */
+ if(dnShowLights && dnShowLabels){
+  dnCtx.fillStyle='rgba(255,235,150,0.9)';
+  dnCtx.font='bold 15px sans-serif';
+  dnCtx.fillText('🏙️ City Lights (Night Side)',ex+er*0.65,ey-er*0.8);
+ }
+
+ /* ---------- READOUT ---------- */
+ const hoursElapsed = ((dnAngle*30)%360)/15;
+ const hh = Math.floor(hoursElapsed);
+ const mm = Math.floor((hoursElapsed-hh)*60);
+ const timeStr = (hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm;
+ const facingSun = Math.cos(dnAngle*30*Math.PI/180)>0;
+ document.getElementById('dnReadout').innerHTML='EARTH ROTATION <small>Local time: '+timeStr+'  |  1 full turn = 24 hours</small>';
+ document.getElementById('dnInfo').textContent = facingSun ?
+  'You are on the DAY side of Earth — the Sun is shining on you.' :
+  'You are on the NIGHT side of Earth — you are in darkness. City lights are visible.';
+
+ if(dnRotating && !dnPaused){ dnAngle += 0.012 * dnSpeed; }
+ requestAnimationFrame(dnLoop);
+}
+
+/* ---- DAY & NIGHT CONTROLS ---- */
+document.getElementById('dnSpeed').addEventListener('change',e=>{dnSpeed=+e.target.value});
+
+document.getElementById('dnRotateBtn').addEventListener('click',function(){
+ dnRotating=!dnRotating;
+ if(dnRotating){
+  dnPaused=false;
+  this.textContent='⏹ Stop';
+  this.style.background='#c62828';
+  document.getElementById('dnPauseBtn').disabled=false;
+  document.getElementById('dnPauseBtn').textContent='⏸ Pause';
+ } else {
+  this.textContent='▶ Rotate Earth';
+  this.style.background='#1976d2';
+  document.getElementById('dnPauseBtn').disabled=true;
+ }
+});
+
+document.getElementById('dnPauseBtn').addEventListener('click',function(){
+ if(!dnRotating) return;
+ dnPaused=!dnPaused;
+ this.textContent=dnPaused?'▶ Play':'⏸ Pause';
+});
+
+document.getElementById('dnLightsBtn').addEventListener('click',function(){
+ dnShowLights=!dnShowLights;
+ this.textContent=dnShowLights?'🏙️ City Lights ON':'🏙️ City Lights OFF';
+ this.style.background=dnShowLights?'#1976d2':'#555';
+});
+
+document.getElementById('dnAtmoBtn').addEventListener('click',function(){
+ dnShowAtmo=!dnShowAtmo;
+ this.textContent=dnShowAtmo?'🌫️ Atmosphere ON':'🌫️ Atmosphere OFF';
+ this.style.background=dnShowAtmo?'#1976d2':'#555';
+});
+
+document.getElementById('dnLabelsBtn').addEventListener('click',function(){
+ dnShowLabels=!dnShowLabels;
+ this.textContent=dnShowLabels?'🏷️ Labels ON':'🏷️ Labels OFF';
+ this.style.background=dnShowLabels?'#1976d2':'#555';
+});
+
+document.getElementById('dnResetBtn').addEventListener('click',function(){
+ dnAngle=0;dnRotating=false;dnPaused=true;
+ document.getElementById('dnRotateBtn').textContent='▶ Rotate Earth';
+ document.getElementById('dnRotateBtn').style.background='#1976d2';
+ document.getElementById('dnPauseBtn').textContent='⏸ Pause';
+ document.getElementById('dnPauseBtn').disabled=true;
+});
+
+/* ================= START ================= */
+window.addEventListener('load',()=>{
+ const wc=document.getElementById('waterCanvas');
+ waterCtx=wc.getContext('2d');
+ initWater();
+ waterLoop();
+
+ const dc=document.getElementById('dnCanvas');
+ dnCtx=dc.getContext('2d');
+ initStars();
+ dnLoop();
+});
+
+})();
+</script>
+</body>
+</html>
